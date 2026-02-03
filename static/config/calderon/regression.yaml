@@ -1,0 +1,60 @@
+# Configuration for training the mapping network on Calderón/EIT problem
+# Usage: python static_regression_calderon.py inr.run_name=<your_run_name>
+
+defaults:
+  - _self_
+  - data: null
+  - optim: null
+  - inr: null
+  - wandb: null
+
+# Data configuration  
+data:
+  dir: "/data/"
+  dataset_name: "calderon"
+  data_path: "/fs/nexus-scratch/pulijala/test2/GA-IAE/datasets/darcy/data/calderon_star_dataset.mat"
+  data_to_encode: null
+  ntrain: null    # Will be loaded from INR checkpoint
+  ntest: null
+  sub_tr: 1
+  sub_te: 1
+  seed: 42
+  same_grid: false
+  train_subsample_size: 2000
+  test_subsample_size: 2000 
+
+# Optimization configuration (matching CORAL defaults)
+optim:
+  batch_size: 64
+  batch_size_val: 64
+  lr: 1e-3
+  weight_decay: 0
+  gamma_step: 0.9
+  epochs: 1000
+
+# Mapping network configuration (matching CORAL defaults)
+model:
+  model_type: resnet
+  depth: 3
+  width: 64
+  dropout: 0
+  activation: swish
+
+# Pre-trained INR configuration
+inr:
+  run_name: null         # Name of the INR run to load (REQUIRED!)
+  inner_steps: 3
+
+# Weights & Biases configuration
+wandb:
+  entity: null
+  project: "calderon-coral"
+  name: null
+  id: null
+  dir: null
+  sweep_id: null
+
+jz:
+  program: static_regression_calderon.py
+  mode: dev
+  partition: gpu_p2

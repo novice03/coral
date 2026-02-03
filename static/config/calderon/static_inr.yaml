@@ -1,0 +1,98 @@
+# Configuration for training INRs on Calderón/EIT problem
+# Usage: python static_inr_calderon.py
+
+defaults:
+  - _self_
+  - data: null
+  - optim: null
+  - inr: null
+  - wandb: null
+
+# Data configuration
+data:
+  dir: "/data/"
+  dataset_name: "calderon"
+  data_path: "/fs/nexus-scratch/pulijala/test2/GA-IAE/datasets/darcy/data/calderon_star_dataset.mat"
+  ntrain: 4096
+  ntest: 2048
+  sub_tr: 1
+  sub_te: 1
+  seed: 42
+  same_grid: false
+  # Subsampling for faster training
+  train_subsample_size: 2000    # Subsample mesh to 2000 nodes during training (null = no subsampling)
+  test_subsample_size: 2000     # Use same subsample size for testing (or null for full mesh)
+
+# Optimization configuration (matching CORAL defaults)
+optim:
+  batch_size: 32
+  batch_size_val: 32
+  lr_inr: 5e-6
+  lr_code: 0.01           # Inner loop learning rate (initial)
+  meta_lr_code: 0         # CORAL default is 0 (don't learn the inner LR)
+  weight_decay_code: 0
+  inner_steps: 3
+  test_inner_steps: 3
+  epochs: 500
+  gamma_step: 0.9
+  lr_mlp: 1e-3
+  weight_decay_mlp: 0
+
+# Input INR configuration (sensor coords → D/N values)
+# Maps (x, y) → 40 values (20 Dirichlet + 20 Neumann)
+inr_in:
+  model_type: "siren"
+  latent_dim: 256
+  depth: 4
+  hidden_dim: 256
+  w0: 20
+  use_latent: true
+  modulate_scale: false
+  modulate_shift: true
+  hypernet_depth: 1
+  hypernet_width: 128
+  last_activation: null
+  loss_type: "mse"
+
+# Output INR configuration (mesh coords → conductivity)  
+# Maps (x, y) → 1 value (conductivity)
+inr_out:
+  model_type: "siren"
+  latent_dim: 256
+  depth: 4
+  hidden_dim: 256
+  w0: 50
+  use_latent: true
+  modulate_scale: false
+  modulate_shift: true
+  hypernet_depth: 1
+  hypernet_width: 128
+  last_activation: null
+  loss_type: "mse"
+
+# Mapping model config (for regression)
+model:
+  model_type: resnet
+  depth: 3
+  width: 128
+  dropout: 0
+  activation: swish
+
+# Legacy inr section (for compatibility)
+inr:
+  inner_steps: 3
+  run_name: null
+
+# Weights & Biases configuration
+wandb:
+  entity: null
+  project: "calderon-coral"
+  name: null
+  id: null
+  dir: null
+  sweep_id: null
+
+jz:
+  program: static_inr_calderon.py
+  mode: dev
+  partition: gpu_p2
