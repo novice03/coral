@@ -1,0 +1,46 @@
+# Regression Training Config for MCB Multi-Shape Poisson Problem
+#
+# Trains the mapping network: z_in → z_out
+# where z_in encodes (boundary_values + source_term)
+# and z_out encodes solution
+
+defaults:
+  - _self_
+
+# Data configuration
+data:
+  dataset_name: "mcb_poisson"
+  data_root: "/fs/nexus-scratch/pulijala/data_poisson_multishape_20260126_125426"
+  train_split_file: "/fs/nexus-scratch/pulijala/known_shape_known_prob.txt"
+  test_split_file: "/fs/nexus-scratch/pulijala/unknown_shape_unknown_prob.txt"
+  subsample_interior: 
+  num_workers: 4
+  seed: 42
+
+# Optimization
+optim:
+  batch_size: 4
+  batch_size_val: 
+  lr : 1e-3
+  weight_decay: 0
+  gamma_step : 0.9
+  epochs : 1000
+
+model:
+  model_type: resnet
+  depth: 3
+  width: 64
+  dropout: 0
+  activation: swish
+
+# Pre-trained INR configuration
+inr:
+  run_name: null  # UPDATE THIS with wandb run name from INR training
+  inner_steps: 5
+
+# Wandb logging
+wandb:
+  entity: null  # UPDATE THIS with your wandb entity
+  project: "mcb-coral"
+  name: null
+  id: null

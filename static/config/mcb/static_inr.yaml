@@ -1,0 +1,81 @@
+# Static INR Training Config for MCB Multi-Shape Poisson Problem
+# 
+# Input INR: (boundary_coords ∪ interior_coords) → (boundary_values ∪ source_term)
+# Output INR: mesh_nodes → solution
+#
+# 3D coordinates (input_dim=3), single model across all shapes
+
+defaults:
+  - _self_
+
+# Data configuration
+data:
+  dataset_name: "mcb_poisson"
+  data_root: "/fs/nexus-scratch/pulijala/data_poisson_multishape_20260126_125426"
+  train_split_file: "/fs/nexus-scratch/pulijala/known_shape_known_prob.txt"
+  test_split_file: "/fs/nexus-scratch/pulijala/unknown_shape_unknown_prob.txt"
+  subsample_interior:   # Subsample interior points per sample
+  num_workers: 4
+  seed: 42
+
+# Optimization
+optim:
+  batch_size: 4
+  batch_size_val: 
+  lr_inr : 5e-6
+  gamma_step : 0.9
+  lr_code : 0.01
+  meta_lr_code : 0
+  weight_decay_code: 0
+  inner_steps : 3
+  test_inner_steps : 3
+  epochs : 100
+  lr_mlp : 1e-3
+  weight_decay_mlp: 0
+
+inr_in:
+  model_type : "siren"
+  latent_dim : 256
+  depth : 4
+  hidden_dim : 256
+  w0 : 20
+  use_latent: True
+  modulate_scale: False
+  modulate_shift: True
+  hypernet_depth: 1
+  hypernet_width: 128
+  last_activation: 
+  loss_type: "mse"
+
+inr_out:
+  model_type : "siren"
+  latent_dim : 256
+  depth : 4
+  hidden_dim : 256
+  w0 : 50
+  use_latent: True
+  modulate_scale: False
+  modulate_shift: True
+  hypernet_depth: 1
+  hypernet_width: 128
+  last_activation: 
+  loss_type: "mse"
+
+model:
+  model_type: resnet
+  depth: 3
+  width: 128
+  dropout: 0
+  activation: swish
+
+# Legacy inr section (for compatibility with create_inr_instance)
+inr:
+  inner_steps: 3
+  run_name: null
+
+# Wandb logging
+wandb:
+  entity: null  # UPDATE THIS with your wandb entity
+  project: "mcb-coral"
+  name: null
+  id: null
